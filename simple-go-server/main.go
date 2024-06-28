@@ -1,7 +1,7 @@
 package main
 
 import (
-  "database/sql"
+"database/sql"
 	"flag"
 	"fmt"
 	"log"
@@ -12,7 +12,6 @@ import (
 )
 
 const version = "1.0.0"
-
 type config struct {
 	port int
 	env  string
