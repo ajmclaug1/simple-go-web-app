@@ -36,53 +36,33 @@ func (app *application) healthcheck(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) getCreateBooksHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		books := []data.Book{
-			{
-				ID:        1,
-				CreatedAt: time.Now(),
-				Title:     "The Darkening of Tristram",
-				Published: 1998,
-				Pages:     300,
-				Genres:    []string{"Fiction", "Thriller"},
-				Rating:    4.5,
-				Version:   1,
-			},
-			{
-				ID:        2,
-				CreatedAt: time.Now(),
-				Title:     "The Legecy of Deckard Cain",
-				Published: 2007,
-				Pages:     432,
-				Genres:    []string{"Fiction", "Adventure"},
-				Rating:    4.9,
-				Version:   1,
-			},
-			{
-				ID:        3,          // system generated
-				CreatedAt: time.Now(), // system generated
-				Title:     "The Black Soulstone",
-				Version:   1, // system generated
-			},
-		}
-		if err := app.writeJSON(w, http.StatusOK, envelope{"books":books}); err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 
+    books, err := app.models.Books.GetAll()
+
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
 		}
+		if err := app.writeJSON(w, http.StatusOK, envelope{"books": books}); err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
 	}
 	if r.Method == http.MethodPost {
-		var input struct{
-			Title     string    `json:"title"`
-			Published int       `json:"published,omitempty"`
-			Pages     int       `json:"pages,omitempty"`
-			Genres    []string  `json:"genres,omitempty"`
-			Rating    float32   `json:"rating,omitempty"`
+		var input struct {
+			Title     string   `json:"title"`
+			Published int      `json:"published,omitempty"`
+			Pages     int      `json:"pages,omitempty"`
+			Genres    []string `json:"genres,omitempty"`
+			Rating    float32  `json:"rating,omitempty"`
 		}
 
-    err := app.readJSON(w,r,&input)
-		if err != nil{
+		err := app.readJSON(w, r, &input)
+		if err != nil {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		}	
-		fmt.Fprintf(w, "%v, \n", input )
+		}
+		fmt.Fprintf(w, "%v, \n", input)
 	}
 }
 
@@ -116,7 +96,7 @@ func (app *application) getBook(w http.ResponseWriter, r *http.Request) {
 		Version:   1,
 	}
 
-	if err := app.writeJSON(w, http.StatusOK, envelope{"book":book}); err != nil {
+	if err := app.writeJSON(w, http.StatusOK, envelope{"book": book}); err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 
 	}
@@ -128,12 +108,12 @@ func (app *application) updateBook(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 	}
-	var input struct{
-		Title     *string    `json:"title"`
-		Published *int       `json:"published"`
-		Pages     *int       `json:"pages"`
-		Genres    []string  `json:"genres"`
-		Rating    *float32   `json:"rating"`
+	var input struct {
+		Title     *string  `json:"title"`
+		Published *int     `json:"published"`
+		Pages     *int     `json:"pages"`
+		Genres    []string `json:"genres"`
+		Rating    *float32 `json:"rating"`
 	}
 
 	book := data.Book{
@@ -147,7 +127,7 @@ func (app *application) updateBook(w http.ResponseWriter, r *http.Request) {
 		Version:   1,
 	}
 
- 	  err = app.readJSON(w,r, &input)
+	err = app.readJSON(w, r, &input)
 
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -158,10 +138,10 @@ func (app *application) updateBook(w http.ResponseWriter, r *http.Request) {
 		book.Title = *input.Title
 	}
 
-	if input.Published != nil{
+	if input.Published != nil {
 		book.Published = *input.Published
 	}
-	if input.Pages != nil{
+	if input.Pages != nil {
 		book.Pages = *input.Pages
 	}
 	if len(input.Genres) > 0 {
@@ -172,8 +152,6 @@ func (app *application) updateBook(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprintf(w, "%v\n", book)
 }
-
-
 
 func (app *application) deleteBook(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path[len("/v1/books/"):]

@@ -3,12 +3,12 @@ package data
 import "database/sql"
 
 type Models struct {
-  Books type BookModel
+	Books BookModel
 }
 
-func NewModels (db *sql.DB) Models{
+func NewModels(db *sql.DB) Models {
 
-  return Models{
-    Books: BookModel{DB: db},
-  }
+	return Models{
+		Books: BookModel{DB: db},
+	}
 }
