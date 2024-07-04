@@ -37,7 +37,7 @@ func (app *application) healthcheck(w http.ResponseWriter, r *http.Request) {
 func (app *application) getCreateBooksHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 
-    books, err := app.models.Books.GetAll()
+		books, err := app.models.Books.GetAll()
 
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -62,8 +62,30 @@ func (app *application) getCreateBooksHandler(w http.ResponseWriter, r *http.Req
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		}
-		fmt.Fprintf(w, "%v, \n", input)
-	}
+	  book := &data.Book{
+      Title: input.Title,
+      Publishedd: input.Published,
+      Pages: input.Pages,
+      Genres: input.Genres,
+      Rating: input.Rating,
+    }
+
+    err = app.models.BooksInsert(book)
+    if err != nil {
+      http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+      return
+    }
+
+    headers := make(http.Header)
+    headers.Set("location", fmt.Sprintf("v1/books/%d", book.ID))
+
+    err = app.writeJSON(w, http.StatusCreated, envelope{"book": book}, headers)
+  
+    if err != nil {
+      http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+      return
+    }
+}
 }
 
 func (app *application) getUpdateDeleteBooksHandler(w http.ResponseWriter, r *http.Request) {

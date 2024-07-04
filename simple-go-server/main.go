@@ -4,12 +4,12 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/ajmclaug1/simple-go-web-app/simple-go-server/internal/data"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"os"
 	"time"
-	"github.com/ajmclaug1/simple-go-web-app/simple-go-server/internal/data"
 )
 
 const version = "1.0.0"
@@ -35,7 +35,7 @@ func main() {
 	flag.StringVar(&cfg.dsn, "db-dsn", os.Getenv("READINGLIST_DB_DSN"), "PostgreSQL DSN")
 	flag.Parse()
 
-  cfg.dsn = "postgres://postgres:mysecretpassword@localhost/readinglist?sslmode=disable"
+	cfg.dsn = "postgres://postgres:mysecretpassword@localhost/readinglist?sslmode=disable"
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
