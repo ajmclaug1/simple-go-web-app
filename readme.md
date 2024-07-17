@@ -2,15 +2,15 @@ Postcres setup
 
 create docker container runing postgres
 
-docker run --name reading-list-db-container -e POSTGRES_PASSWORD=mysecretpassword -d -p 5432:5432 postgres
+docker run --name reading-db-container -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_USER=postgres -d -p 5432:5432 postgres
 
 Confirm its runninng
 
-dock ps 
+docker ps 
 
 connect using psql
 
-psql -H localhost -p 5432 -U postgres
+psql -h localhost -p 5432 -U postgres
 
 password: mysecretpassword
 
@@ -19,6 +19,8 @@ SQL commands
 CREATE DATABASE readinglist;
 
 CREATE ROLE readinglist WITH LOGIN PASSWORD 'pa55w0rd';
+
+\c readinglist;
 
 CREATE TABLE IF NOT EXISTS books( 
 	id bigserial PRIMARY KEY,

@@ -43,7 +43,7 @@ func (app *application) getCreateBooksHandler(w http.ResponseWriter, r *http.Req
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-		if err := app.writeJSON(w, http.StatusOK, envelope{"books": books}); err != nil {
+		if err := app.writeJSON(w, http.StatusOK, envelope{"books": books}, nil); err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
@@ -59,18 +59,19 @@ func (app *application) getCreateBooksHandler(w http.ResponseWriter, r *http.Req
 		}
 
 		err := app.readJSON(w, r, &input)
+		
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		}
 	  book := &data.Book{
       Title: input.Title,
-      Publishedd: input.Published,
+      Published: input.Published,
       Pages: input.Pages,
       Genres: input.Genres,
       Rating: input.Rating,
     }
-
-    err = app.models.BooksInsert(book)
+    err = app.models.Books.Insert(book)
+	
     if err != nil {
       http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
       return
@@ -118,7 +119,7 @@ func (app *application) getBook(w http.ResponseWriter, r *http.Request) {
 		Version:   1,
 	}
 
-	if err := app.writeJSON(w, http.StatusOK, envelope{"book": book}); err != nil {
+	if err := app.writeJSON(w, http.StatusOK, envelope{"book": book}, nil); err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 
 	}

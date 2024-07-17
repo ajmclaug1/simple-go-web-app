@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 )
-
 type envelope map[string]any
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
@@ -17,12 +16,15 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 
 	js = append(js, '\n')
 
+	for key, value := range headers {
+		w.Header()[key] = value
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	w.Write(js)
 
 	return nil
-
 }
 
 func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
@@ -37,7 +39,6 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any
 	}
 
 	err := dec.Decode(&struct{}{})
-
 	if err != io.EOF {
 		return errors.New("body must only contain a single JSON object")
 	}

@@ -3,8 +3,9 @@ package data
 import (
 	"database/sql"
 	"errors"
-	"github.com/lib/pq"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type Book struct {
@@ -22,15 +23,14 @@ type BookModel struct {
 	DB *sql.DB
 }
 
-func (b BookModel) insert(book *Book) error {
+func (b BookModel) Insert(book *Book) error {
 	query := `
-  INSERT INTO books (title, published, pages, genres, rating)
-  VALUES ($1, $2, $3, 4$, $5)
-  RETURNING id, created_at, version `
+		INSERT INTO books (title, published, pages, genres, rating)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id, created_at, version`
 
 	args := []interface{}{book.Title, book.Published, book.Pages, pq.Array(book.Genres), book.Rating}
 	return b.DB.QueryRow(query, args...).Scan(&book.ID, &book.CreatedAt, &book.Version)
-
 }
 
 func (b BookModel) Get(id int64) (*Book, error) {
@@ -146,6 +146,6 @@ func (b BookModel) GetAll() ([]*Book, error) {
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-	
+
 	return books, nil
 }
