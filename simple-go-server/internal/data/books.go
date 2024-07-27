@@ -8,12 +8,13 @@ import (
 	"github.com/lib/pq"
 )
 
+
 type Book struct {
-	ID        int64     `json:id`
+	ID        int64     `json:"id"`
 	CreatedAt time.Time `json:"-"`
 	Title     string    `json:"title"`
 	Published int       `json:"published,omitempty"`
-	Pages     int       `json:"pages,omitempty"`
+	Pages     int       `json:"pages,omitempty,string"` // change return data type to string
 	Genres    []string  `json:"genres,omitempty"`
 	Rating    float32   `json:"rating,omitempty"`
 	Version   int32     `json:"-"`
@@ -78,9 +79,11 @@ func (b BookModel) Update(book *Book) error {
 		WHERE id = $5 AND version = $6
 		RETURNING version`
 
-	args := []interface{}{book.Title, book.Published, book.Pages, pq.Array(book.Genres), book.ID, book.Version}
-	return b.DB.QueryRow(query, args...).Scan(&book.Version)
+  args := []interface{}{book.Title, book.Published, book.Pages, pq.Array(book.Genres), book.ID, book.Version}
+
+  return b.DB.QueryRow(query, args...).Scan(&book.Version)
 }
+
 
 func (b BookModel) Delete(id int64) error {
 	if id < 1 {
