@@ -8,13 +8,12 @@ import (
 	"github.com/lib/pq"
 )
 
-
 type Book struct {
 	ID        int64     `json:"id"`
 	CreatedAt time.Time `json:"-"`
 	Title     string    `json:"title"`
 	Published int       `json:"published,omitempty"`
-	Pages     int       `json:"pages,omitempty,string"` // change return data type to string
+	Pages     int       `json:"pages,omitempty"` // change return data type to string
 	Genres    []string  `json:"genres,omitempty"`
 	Rating    float32   `json:"rating,omitempty"`
 	Version   int32     `json:"-"`
@@ -31,6 +30,7 @@ func (b BookModel) Insert(book *Book) error {
 		RETURNING id, created_at, version`
 
 	args := []interface{}{book.Title, book.Published, book.Pages, pq.Array(book.Genres), book.Rating}
+	// return the auto generated system values to Go object
 	return b.DB.QueryRow(query, args...).Scan(&book.ID, &book.CreatedAt, &book.Version)
 }
 
@@ -40,10 +40,9 @@ func (b BookModel) Get(id int64) (*Book, error) {
 	}
 
 	query := `
-    SELECT id, created_at, title, published, pages, genres, rating, version
-    FROM books
-    WHERE id = $1
-  `
+		SELECT id, created_at, title, published, pages, genres, version
+		FROM books
+		WHERE id = $1`
 
 	var book Book
 
@@ -54,7 +53,6 @@ func (b BookModel) Get(id int64) (*Book, error) {
 		&book.Published,
 		&book.Pages,
 		pq.Array(&book.Genres),
-		&book.Rating,
 		&book.Version,
 	)
 
@@ -62,14 +60,12 @@ func (b BookModel) Get(id int64) (*Book, error) {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, errors.New("record not found")
-
 		default:
 			return nil, err
 		}
 	}
 
 	return &book, nil
-
 }
 
 func (b BookModel) Update(book *Book) error {
@@ -79,11 +75,9 @@ func (b BookModel) Update(book *Book) error {
 		WHERE id = $5 AND version = $6
 		RETURNING version`
 
-  args := []interface{}{book.Title, book.Published, book.Pages, pq.Array(book.Genres), book.ID, book.Version}
-
-  return b.DB.QueryRow(query, args...).Scan(&book.Version)
+	args := []interface{}{book.Title, book.Published, book.Pages, pq.Array(book.Genres), book.ID, book.Version}
+	return b.DB.QueryRow(query, args...).Scan(&book.Version)
 }
-
 
 func (b BookModel) Delete(id int64) error {
 	if id < 1 {
