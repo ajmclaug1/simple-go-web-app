@@ -2,11 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/ajmclaug1/simple-go-web-app/simple-go-server/internal/data"
 	"net/http"
 	"strconv"
-  "errors"
+
+	"github.com/ajmclaug1/simple-go-web-app/simple-go-server/internal/data"
 )
 
 func (app *application) healthcheck(w http.ResponseWriter, r *http.Request) {
@@ -14,6 +15,7 @@ func (app *application) healthcheck(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
+
 	data := map[string]string{
 		"status":      "available",
 		"environment": app.config.env,
@@ -31,9 +33,7 @@ func (app *application) healthcheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	w.Write(js)
-
 }
-
 
 func (app *application) getCreateBooksHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -91,8 +91,6 @@ func (app *application) getCreateBooksHandler(w http.ResponseWriter, r *http.Req
 	}
 }
 
-
-
 func (app *application) getUpdateDeleteBooksHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -130,7 +128,6 @@ func (app *application) getBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
 
 func (app *application) updateBook(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path[len("/v1/books/"):]
