@@ -9,7 +9,6 @@ import (
 
 type envelope map[string]any
 
-// Credit: Alex Edwards, Let's Go Further
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
@@ -37,7 +36,6 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any
 	dec.DisallowUnknownFields()
 
 	if err := dec.Decode(dst); err != nil {
-		// Custom Error Handling: Alex Edwards, Let's Go Further Chapter 4
 		return err
 	}
 
